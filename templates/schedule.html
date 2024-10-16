@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Entry</title>
+    <script>
+        function toggleTimeInputs() {
+            const allDayCheckbox = document.getElementById('all_day');
+            const startTimeInput = document.getElementById('start_time');
+            const endTimeInput = document.getElementById('end_time');
+
+            if (allDayCheckbox.checked) {
+                startTimeInput.disabled = true;
+                endTimeInput.disabled = true;
+            } else {
+                startTimeInput.disabled = false;
+                endTimeInput.disabled = false;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Schedule an Event</h1>
+    <form action="/schedule" method="post">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" required><br>
+
+        <input type="checkbox" id="all_day" name="all_day" onclick="toggleTimeInputs()">
+        <label for="all_day">All Day Event</label><br>
+
+        <label for="start_time">Start Time:</label>
+        <input type="time" id="start_time" name="start_time" value="09:00"><br>
+
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date"><br>
+
+        <label for="end_time">End Time:</label>
+        <input type="time" id="end_time" name="end_time"><br>
+
+        <button type="submit">Save Event</button>
+    </form>
+</body>
+</html>

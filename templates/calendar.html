@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Calendar</title>
+    <style>
+        body {
+            background-color: aquamarine;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            margin: auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+        button {
+            margin: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .flash {
+            margin: 10px;
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weekly Calendar</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Events</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in entries %}
+            <tr>
+                <td>{{ entry.date }}</td>
+                <td>
+                    {% for event in entry.events %}
+                    <div>{{ event.start_time.strftime('%H:%M') }} - {{ event.end_time.strftime('%H:%M') }}: {{ event.email }}</div>
+                    {% endfor %}
+                    {% if not entry.events %}
+                    <div>No events</div>
+                    {% endif %}
+                </td>
+                <td>
+                    {% for event in entry.events %}
+                    <form action="{{ url_for('remove_entry') }}" method="post" style="display: inline;">
+                        <input type="hidden" name="entry_index" value="{{ event.id }}"> <!-- Change this line -->
+                        <input type="password" name="password" placeholder="Password" required>
+                        <button type="submit">Remove</button>
+                    </form>
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2>Add Schedule</h2>
+    <form action="{{ url_for('schedule') }}" method="post">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" required>
+    
+        <label for="start_time">Start Time:</label>
+        <input type="time" id="start_time" name="start_time" required> <!-- Required for non-all-day events -->
+    
+        <label for="end_time">End Time:</label>
+        <input type="time" id="end_time" name="end_time" required> <!-- Required for non-all-day events -->
+    
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" placeholder="Email" required>
+    
+        <label for="all_day">
+            <input type="checkbox" id="all_day" name="all_day" onclick="toggleTimeInputs()">
+            All Day Event
+        </label>
+    
+        <button type="submit">Add Schedule</button>
+    </form>
+    
+    <script>
+        function toggleTimeInputs() {
+            var allDayCheckbox = document.getElementById("all_day");
+            var startTimeInput = document.getElementById("start_time");
+            var endTimeInput = document.getElementById("end_time");
+    
+            if (allDayCheckbox.checked) {
+                startTimeInput.style.display = "none"; // Hide start time
+                endTimeInput.style.display = "none";   // Hide end time
+                startTimeInput.removeAttribute('required'); // Remove required attribute
+                endTimeInput.removeAttribute('required');   // Remove required attribute
+            } else {
+                startTimeInput.style.display = "inline"; // Show start time
+                endTimeInput.style.display = "inline";   // Show end time
+                startTimeInput.setAttribute('required', true); // Add required attribute back
+                endTimeInput.setAttribute('required', true);   // Add required attribute back
+            }
+        }
+    </script>
+    
+    
+
+    <br>
+    <a href="{{ url_for('index') }}">
+        <button>Back to Home</button>
+    </a>
+</body>
+</html>

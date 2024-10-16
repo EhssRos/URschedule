@@ -106,8 +106,8 @@ def schedule():
             end_time = request.form['end_time']
 
             # Combine the start date and start time
-            start_time_dt = datetime.fromisoformat(f"{start_date}T{start_time}")
-            end_time_dt = datetime.fromisoformat(f"{start_date}T{end_time}")
+            start_time_dt = datetime.fromisoformat(f"{start_date}T{start_time}")+ timedelta(days=1)
+            end_time_dt = datetime.fromisoformat(f"{start_date}T{end_time}")+ timedelta(days=1)
 
             # Ensure the end time is after the start time
             if end_time_dt <= start_time_dt:

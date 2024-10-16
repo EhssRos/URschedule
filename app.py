@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from sqlalchemy import or_
 from sqlalchemy import and_
-
+import os
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///schedule.db'  # Database URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

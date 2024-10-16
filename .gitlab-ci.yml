@@ -1,0 +1,31 @@
+stages:
+  - install
+  - test
+  - deploy
+
+# Stage to install dependencies
+install_dependencies:
+  stage: install
+  image: python:3.9   # Choose the version of Python you're using
+  script:
+    - pip install -r requirements.txt
+
+# Stage to run tests (if you have them)
+run_tests:
+  stage: test
+  image: python:3.9
+  script:
+    - echo "No tests defined"
+  # If you have actual tests, replace the script with pytest or any other test runner.
+
+# Stage to deploy
+deploy:
+  stage: deploy
+  image: python:3.9
+  script:
+    - echo "Deploying to server"
+    # Add commands to deploy your app, depending on your university's server setup
+  environment:
+    name: production
+  only:
+    - main  # Only deploy when pushing to the main branch

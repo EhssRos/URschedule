@@ -55,8 +55,8 @@ def schedule():
 
         if all_day:
             # All Day Event: Set start and end times to cover the entire day
-            start_time_dt = datetime.combine(datetime.fromisoformat(start_date), datetime.min.time())  # Start of the day
-            end_time_dt = datetime.combine(datetime.fromisoformat(start_date), datetime.max.time())    # End of the day
+            start_time_dt = datetime.combine(datetime.fromisoformat(start_date)+ timedelta(days=1), datetime.min.time())  # Start of the day
+            end_time_dt = datetime.combine(datetime.fromisoformat(start_date)+ timedelta(days=1), datetime.max.time())    # End of the day
         else:
             # Regular Event: Get start and end time from the form
             start_time = request.form['start_time']

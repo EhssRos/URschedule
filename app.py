@@ -10,6 +10,49 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'supersecretkey'
 
 db = SQLAlchemy(app)
+class StatusReport(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    report = db.Column(db.String(255), nullable=False)  # Adjust the length as needed
+# Create the database and tables
+with app.app_context():
+    db.create_all()  # This will create all models, including the new StatusReport model
+
+@app.route('/status', methods=['GET', 'POST'])
+def status():
+    if request.method == 'POST':
+        report_text = request.form['report_text']  # Get the report text from the form
+
+        # Create a new StatusReport entry
+        new_report = StatusReport(report=report_text)
+        db.session.add(new_report)
+        db.session.commit()
+        
+        flash('Status report added successfully!', 'success')
+        return redirect(url_for('status'))
+
+    # If GET request, fetch all status reports to display
+    status_reports = StatusReport.query.all()
+    return render_template('status.html', reports=status_reports)
+
+@app.route('/remove_status', methods=['POST'])
+def remove_status():
+    password = request.form['password']
+    if password == "removeifpt":  # Use the same password for deletion
+        try:
+            report_id = int(request.form['report_id'])  # Get the report ID
+            report_to_remove = StatusReport.query.get(report_id)
+            if report_to_remove:
+                db.session.delete(report_to_remove)
+                db.session.commit()
+                flash('Status report removed successfully!', 'success')
+            else:
+                flash('Status report not found.', 'error')
+        except (ValueError, IndexError):
+            flash('Invalid report ID.', 'error')
+    else:
+        flash('Incorrect password.', 'error')
+
+    return redirect(url_for('status'))
 
 # Database model for scheduled entries
 class ScheduleEntry(db.Model):
@@ -116,4 +159,5 @@ def remove_entry():
 
 
 if __name__ == '__main__':
+    #app.run(debug=True)
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=False)

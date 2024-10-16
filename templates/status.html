@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UR10 Status Reports</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>UR10 Status Reports</h1>
+    
+    <h2>Add a Status Report</h2>
+    <form method="POST" action="{{ url_for('status') }}">
+        <textarea name="report_text" rows="4" cols="50" required></textarea>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>Current Status Reports</h2>
+    <ul>
+        {% for report in reports %}
+        <li>
+            {{ report.report }}
+            <form method="POST" action="{{ url_for('remove_status') }}" style="display:inline;">
+                <input type="hidden" name="report_id" value="{{ report.id }}">
+                <input type="password" name="password" placeholder="Enter password to delete" required>
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('calendar') }}">Back to Calendar</a>
+</body>
+</html>

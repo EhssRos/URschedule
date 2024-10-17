@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Calendar</title>
+    <title>{{ calendar_type }} Calendar</title>
     <style>
         body {
             background-color: rgb(54, 196, 236);
@@ -32,11 +32,29 @@
         .success {
             color: green;
         }
+        /* Popup styles */
+        #popup {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        #popup img {
+            max-width: 80%; /* Responsive image */
+            max-height: 80%; /* Responsive image */
+        }
     </style>
 </head>
 <body>
-    <h1>Weekly Calendar</h1>
+    <h1>{{ calendar_type }} Calendar</h1>
 
+    <!-- Flash messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -67,7 +85,7 @@
                 </td>
                 <td>
                     {% for event in entry.events %}
-                    <form action="{{ url_for('remove_entry') }}" method="post" style="display: inline;">
+                    <form action="{{ url_for('remove_entry', calendar_type=calendar_type) }}" method="post" style="display: inline;">
                         <input type="hidden" name="entry_index" value="{{ event.id }}">
                         <input type="password" name="password" placeholder="Password" required>
                         <button type="submit">Remove</button>
@@ -79,16 +97,16 @@
         </tbody>
     </table>
 
-    <h2>Add Schedule</h2>
-    <form action="{{ url_for('schedule') }}" method="post">
+    <h2>Add Schedule to {{ calendar_type }}</h2>
+    <form action="{{ url_for('schedule', calendar_type=calendar_type) }}" method="post">
         <label for="start_date">Start Date (UTC):</label>
         <input type="date" id="start_date" name="start_date" required>
 
         <label for="start_time">Start Time (UTC):</label>
-        <input type="time" id="start_time" name="start_time" required> <!-- Required for non-all-day events -->
+        <input type="time" id="start_time" name="start_time" required>
 
         <label for="end_time">End Time (UTC):</label>
-        <input type="time" id="end_time" name="end_time" required> <!-- Required for non-all-day events -->
+        <input type="time" id="end_time" name="end_time" required>
 
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" placeholder="Email" required>
@@ -108,18 +126,39 @@
             var endTimeInput = document.getElementById("end_time");
 
             if (allDayCheckbox.checked) {
-                startTimeInput.style.display = "none"; // Hide start time
-                endTimeInput.style.display = "none";   // Hide end time
-                startTimeInput.removeAttribute('required'); // Remove required attribute
-                endTimeInput.removeAttribute('required');   // Remove required attribute
+                startTimeInput.style.display = "none";
+                endTimeInput.style.display = "none";
+                startTimeInput.removeAttribute('required');
+                endTimeInput.removeAttribute('required');
             } else {
-                startTimeInput.style.display = "inline"; // Show start time
-                endTimeInput.style.display = "inline";   // Show end time
-                startTimeInput.setAttribute('required', true); // Add required attribute back
-                endTimeInput.setAttribute('required', true);   // Add required attribute back
+                startTimeInput.style.display = "inline";
+                endTimeInput.style.display = "inline";
+                startTimeInput.setAttribute('required', true);
+                endTimeInput.setAttribute('required', true);
             }
         }
+
+        // Function to show the popup if a new event is scheduled
+        function showPopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'flex'; // Show the popup
+        }
+
+        // Show the popup if the new_event parameter is set
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const newEvent = urlParams.get('new_event');
+            if (newEvent === 'True') {
+                showPopup();
+            }
+        };
     </script>
+
+    <!-- Popup container -->
+    <div id="popup">
+        <img src="{{ url_for('static', filename='images/martin.jpg') }}" alt="New Event Scheduled!">
+        <button onclick="document.getElementById('popup').style.display='none'">Close</button>
+    </div>
 
     <br>
     <a href="{{ url_for('index') }}">

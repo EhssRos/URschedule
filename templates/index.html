@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UR10 Scheduler</title>
+    <title>Robot Scheduler</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Welcome to UR10 Scheduler</h1>
-    <a href="{{ url_for('calendar') }}" class="calendar-button">View Calendar</a>
+    <h1>Welcome to Robot Scheduler</h1>
+
+    <h2>Select a Calendar:</h2>
+
+    <!-- Links to different robot calendars -->
+    <a href="{{ url_for('calendar', calendar_type='ur') }}" class="calendar-button">View UR10 Calendar</a>
     <br>
+    <a href="{{ url_for('calendar', calendar_type='robot2') }}" class="calendar-button">View Robot 2 Calendar</a>
+    <br>
+    <a href="{{ url_for('calendar', calendar_type='robot3') }}" class="calendar-button">View Robot 3 Calendar</a>
+
+    <br><br>
     <a href="{{ url_for('status') }}" class="status-button">View Status Reports</a>
 </body>
 </html>

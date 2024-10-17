@@ -7,7 +7,7 @@ import os
 import pytz
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://urscheduler_user:3VNKoeJr62tNlzPjAV40Zcl9igXSgJdb@dpg-cs81so0gph6c73csi8h0-a/urscheduler'  # Database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://urscheduler_user:3VNKoeJr62tNlzPjAV40Zcl9igXSgJdb@dpg-cs81so0gph6c73csi8h0-a/urscheduler'  # Database URI 'sqlite:///schedule.db'#
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'supersecretkey'
 
@@ -61,13 +61,14 @@ class ScheduleEntry(db.Model):
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
     email = db.Column(db.String(120), nullable=False)
+    calendar_type = db.Column(db.String(50), nullable=False)  # New column for calendar type
+
 
 # Create the database and tables
 with app.app_context():
     db.create_all()
 
-# Function to get entries for the current week
-def get_entries_for_week():
+def get_entries_for_week(calendar_type):
     entries = []
     # Get the current date and time in UTC
     now_utc = datetime.now(pytz.utc)
@@ -75,16 +76,21 @@ def get_entries_for_week():
     # Start of the week in UTC at midnight (00:00:00) on the most recent Monday
     start_of_week = now_utc - timedelta(days=now_utc.weekday())  # Get the latest Monday
     start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)  # Set to 00:00:00
-    
-  
 
+    # Loop through the days of the week and get the events for each day, filtered by calendar_type
     for i in range(7):
-     
         day = start_of_week + timedelta(days=i)
+        
+        # Filter events based on calendar_type and the specific day
+        events = ScheduleEntry.query.filter(
+            ScheduleEntry.start_time >= day,
+            ScheduleEntry.start_time < day + timedelta(days=1),
+            ScheduleEntry.calendar_type == calendar_type  # Filter by calendar type
+        ).all()
         
         entries.append({
             'date': day.date(),
-            'events': ScheduleEntry.query.filter(ScheduleEntry.start_time >= day, ScheduleEntry.start_time < day + timedelta(days=1)).all()
+            'events': events
         })
     
     return entries
@@ -93,61 +99,66 @@ def get_entries_for_week():
 def index():
     return render_template('index.html')
 
-@app.route('/calendar')
-def calendar():
-    entries = get_entries_for_week()
-    return render_template('calendar.html', entries=entries)
+@app.route('/calendar/<calendar_type>')
+def calendar(calendar_type):
+    entries = get_entries_for_week(calendar_type)
+    return render_template('calendar.html', entries=entries, calendar_type=calendar_type)
 
-@app.route('/schedule', methods=['POST'])
-def schedule():
+@app.route('/schedule/<calendar_type>', methods=['POST'])
+def schedule(calendar_type):
+    new_event_scheduled = False  # Flag to indicate if a new event was scheduled
     try:
-        start_date = request.form['start_date']  # Get the start date in UTC
-        all_day = 'all_day' in request.form  # Check if the all-day option is selected
-        email = request.form['email']  # Get the email
+        start_date = request.form['start_date']
+        all_day = 'all_day' in request.form
+        email = request.form['email']
 
-        # Parse the start date as UTC
         start_date_dt = datetime.fromisoformat(start_date).replace(tzinfo=pytz.utc)
 
         if all_day:
-            # All Day Event: Set start and end times to cover the entire day in UTC
-            start_time_dt = start_date_dt  # Start of the day at 00:00
-            end_time_dt = start_time_dt.replace(hour=23, minute=59, second=59)  # End of the day at 23:59:59
-
+            start_time_dt = start_date_dt
+            end_time_dt = start_time_dt.replace(hour=23, minute=59, second=59)
         else:
-            # Regular Event: Get start and end time from the form
             start_time = request.form['start_time']
             end_time = request.form['end_time']
 
-            # Combine the start date and start time in UTC
             start_time_dt = datetime.fromisoformat(f"{start_date}T{start_time}").replace(tzinfo=pytz.utc)
             end_time_dt = datetime.fromisoformat(f"{start_date}T{end_time}").replace(tzinfo=pytz.utc)
 
-            # Ensure the end time is after the start time
             if end_time_dt <= start_time_dt:
                 flash('End time must be after start time.', 'error')
-                return redirect(url_for('calendar'))
+                return redirect(url_for('calendar', calendar_type=calendar_type))
 
-        # Overlap check logic
+        # Overlap check
         overlapping_events = ScheduleEntry.query.filter(
             and_(
                 ScheduleEntry.start_time < end_time_dt,
-                ScheduleEntry.end_time > start_time_dt
+                ScheduleEntry.end_time > start_time_dt,
+                ScheduleEntry.calendar_type == calendar_type
             )
         ).all()
 
         if overlapping_events:
             flash('The scheduled time overlaps with an existing event.', 'error')
-            return redirect(url_for('calendar'))
+            return redirect(url_for('calendar', calendar_type=calendar_type))
 
-        # Add the event if no overlap
-        new_entry = ScheduleEntry(start_time=start_time_dt, end_time=end_time_dt, email=email)
+        # Add the new schedule entry
+        new_entry = ScheduleEntry(
+            start_time=start_time_dt,
+            end_time=end_time_dt,
+            email=email,
+            calendar_type=calendar_type
+        )
         db.session.add(new_entry)
         db.session.commit()
 
-    except KeyError as e:
-        return f'Missing required field: {str(e)}', 400
+        flash('Event successfully scheduled!', 'success')
+        new_event_scheduled = True  # Set flag to True
 
-    return redirect(url_for('calendar'))
+    except KeyError as e:
+        flash(f'Missing required field: {str(e)}', 'error')
+        return redirect(url_for('calendar', calendar_type=calendar_type))
+
+    return redirect(url_for('calendar', calendar_type=calendar_type, new_event=new_event_scheduled))
 
 @app.route('/remove_entry', methods=['POST'])
 def remove_entry():

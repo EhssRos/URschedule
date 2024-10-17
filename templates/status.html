@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UR10 Status Reports</title>
+    <title>Status Reports</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>UR10 Status Reports</h1>
+    <h1>Status Reports</h1>
     
     <h2>Add a Status Report</h2>
     <form method="POST" action="{{ url_for('status') }}">
@@ -29,6 +29,6 @@
         </li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('calendar') }}">Back to Calendar</a>
+    <a href="{{ url_for('index') }}">Back to Home</a>  <!-- Change link to go to index -->
 </body>
 </html>

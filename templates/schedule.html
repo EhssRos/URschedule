@@ -13,6 +13,8 @@
             if (allDayCheckbox.checked) {
                 startTimeInput.disabled = true;
                 endTimeInput.disabled = true;
+                startTimeInput.value = '';  // Clear the value if disabling
+                endTimeInput.value = '';    // Clear the value if disabling
             } else {
                 startTimeInput.disabled = false;
                 endTimeInput.disabled = false;
@@ -22,7 +24,8 @@
 </head>
 <body>
     <h1>Schedule an Event</h1>
-    <form action="/schedule" method="post">
+    <form action="{{ url_for('schedule', calendar_type=calendar_type) }}" method="post">
+
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required><br>
 
@@ -33,13 +36,10 @@
         <label for="all_day">All Day Event</label><br>
 
         <label for="start_time">Start Time:</label>
-        <input type="time" id="start_time" name="start_time" value="09:00"><br>
-
-        <label for="end_date">End Date:</label>
-        <input type="date" id="end_date" name="end_date"><br>
+        <input type="time" id="start_time" name="start_time" value="09:00" required><br>
 
         <label for="end_time">End Time:</label>
-        <input type="time" id="end_time" name="end_time"><br>
+        <input type="time" id="end_time" name="end_time" required><br>
 
         <button type="submit">Save Event</button>
     </form>

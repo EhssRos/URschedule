@@ -163,6 +163,8 @@ def schedule(calendar_type):
 @app.route('/remove_entry', methods=['POST'])
 def remove_entry():
     password = request.form['password']
+    calendar_type = request.args.get('calendar_type')  # Get the calendar_type from the query parameters
+
     if password == "removeifpt":
         try:
             entry_id = int(request.form['entry_index'])  # This should be the actual ID
@@ -178,7 +180,8 @@ def remove_entry():
     else:
         flash('Incorrect password.', 'error')
 
-    return redirect(url_for('calendar'))
+    # Redirect back to the calendar, including the calendar_type
+    return redirect(url_for('calendar', calendar_type=calendar_type))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)), debug=False)

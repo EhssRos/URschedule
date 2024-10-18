@@ -3,16 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robot Scheduler</title>
+    <title>Robot Scheduler - Select a Calendar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* General body styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1783E8; /* Background color */
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #fff; /* Text color */
+        }
+
+        /* Container for buttons and image */
+        .button-image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Style for horizontal button layout */
+        .button-container-horizontal {
+            display: flex;
+            justify-content: center;
+            gap: 15px; /* Adds space between the buttons */
+            margin-bottom: 20px;
+        }
+
+        /* Style for calendar buttons */
+        .calendar-button, .status-button {
+            padding: 10px 15px;
+            background-color: #fff;
+            border: 1px solid #333;
+            text-decoration: none;
+            color: #333;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .calendar-button:hover, .status-button:hover {
+            background-color: #ddd;
+        }
+
+        /* Image container */
+        .image-container {
+            margin-top: 20px; /* Adds space between buttons and image */
+        }
+
+        .logo-image {
+            max-width: 200px; /* Limit the width of the logo */
+            height: auto;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome to Robot Scheduler</h1>
 
     <h2>Select a Calendar:</h2>
 
+    <!-- Container for buttons and image -->
     <div class="button-image-container">
-        <!-- Container for buttons in a horizontal line -->
+        <!-- Horizontal button layout -->
         <div class="button-container-horizontal">
             <a href="{{ url_for('calendar', calendar_type='ur') }}" class="calendar-button">View UR10 Calendar</a>
             <a href="{{ url_for('calendar', calendar_type='robot2') }}" class="calendar-button">View Robot 2 Calendar</a>
@@ -20,9 +74,9 @@
             <a href="{{ url_for('status') }}" class="status-button">View Status Reports</a>
         </div>
 
-        <!-- Image container for the logo, below the buttons -->
+        <!-- Logo Image -->
         <div class="image-container">
-            <img src="{{ url_for('static', filename='images/Logo.PNG') }}" alt="Logo" class="logo-image">
+            <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Robot Scheduler Logo" class="logo-image">
         </div>
     </div>
 </body>

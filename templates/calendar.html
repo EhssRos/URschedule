@@ -10,13 +10,16 @@
             text-align: center;
             font-family: Arial, sans-serif;
         }
-        table {
-            margin: auto;
-            border-collapse: collapse;
-            width: 80%;
+        .calendar-table {
+            background-color: white; /* Set the background color of the calendar table */
+            margin: auto; /* Center the table */
+            border-collapse: collapse; /* Ensure borders are collapsed for a cleaner look */
+            width: 80%; /* You can adjust the width as needed */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better visibility */
         }
-        th, td {
-            border: 1px solid black;
+        .calendar-table th, 
+        .calendar-table td {
+            border: 1px solid black; /* Add border to table cells */
             padding: 10px;
             text-align: center;
         }
@@ -63,7 +66,7 @@
         {% endif %}
     {% endwith %}
 
-    <table>
+    <table class="calendar-table">
         <thead>
             <tr>
                 <th>Date</th>
@@ -77,7 +80,14 @@
                 <td>{{ entry.date }}</td>
                 <td>
                     {% for event in entry.events %}
-                    <div>{{ event.start_time.strftime('%H:%M UTC') }} - {{ event.end_time.strftime('%H:%M UTC') }}: {{ event.email }}</div>
+                    <div class="event-badge-tooltip">
+                        <span class="event-badge">
+                            {{ event.start_time.strftime('%H:%M UTC') }} - {{ event.end_time.strftime('%H:%M UTC') }}: {{ event.event_type }} <!-- Display event type -->
+                        </span>
+                        <span class="tooltip-text">
+                             by {{ event.email }}
+                        </span>
+                    </div>
                     {% endfor %}
                     {% if not entry.events %}
                     <div>No events</div>
@@ -104,26 +114,29 @@
             
         </tbody>
     </table>
-
+    
     <h2>Add Schedule to {{ calendar_type }}</h2>
     <form action="{{ url_for('schedule', calendar_type=calendar_type) }}" method="post">
         <label for="start_date">Start Date (UTC):</label>
         <input type="date" id="start_date" name="start_date" required>
-
+    
         <label for="start_time">Start Time (UTC):</label>
         <input type="time" id="start_time" name="start_time" required>
-
+    
         <label for="end_time">End Time (UTC):</label>
         <input type="time" id="end_time" name="end_time" required>
-
+    
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" placeholder="Email" required>
-
+    
+        <label for="event_type">Event Type:</label>
+        <input type="text" id="event_type" name="event_type" placeholder="Event Type" required>
+    
         <label for="all_day">
             <input type="checkbox" id="all_day" name="all_day" onclick="toggleTimeInputs()">
             All Day Event
         </label>
-
+    
         <button type="submit">Add Schedule</button>
     </form>
 

@@ -7,7 +7,7 @@ import os
 import pytz
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://scheduler_gp4w_user:4I2dxWzkZ6luTNRPB2MQxYCUPYoneIsq@dpg-cs8e34tsvqrc73bpaq2g-a/scheduler_gp4w'  # Database URI 'sqlite:///schedule.db'#
+app.config['SQLALCHEMY_DATABASE_URI'] = postgresql://scheduler_xsyj_user:DusfhYr3eSHc0WpKsGi1kon5mZzyaEn8@dpg-cs944kjqf0us738iv37g-a/scheduler_xsyj#'sqlite:///schedule.db'#'postgresql://scheduler_gp4w_user:4I2dxWzkZ6luTNRPB2MQxYCUPYoneIsq@dpg-cs8e34tsvqrc73bpaq2g-a/scheduler_gp4w'  # Database URI 'sqlite:///schedule.db'#
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'supersecretkey'
 
@@ -62,6 +62,7 @@ class ScheduleEntry(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)
     email = db.Column(db.String(120), nullable=False)
     calendar_type = db.Column(db.String(50), nullable=False)  # New column for calendar type
+    event_type = db.Column(db.String(100), nullable=False)  # New column for event type
 
 
 # Create the database and tables
@@ -104,7 +105,6 @@ def calendar(calendar_type):
     entries = get_entries_for_two_weeks(calendar_type)  # Fetch 14 days' worth of entries
     return render_template('calendar.html', entries=entries, calendar_type=calendar_type)
 
-
 @app.route('/schedule/<calendar_type>', methods=['POST'])
 def schedule(calendar_type):
     new_event_scheduled = False  # Flag to indicate if a new event was scheduled
@@ -112,6 +112,7 @@ def schedule(calendar_type):
         start_date = request.form['start_date']
         all_day = 'all_day' in request.form
         email = request.form['email']
+        event_type = request.form['event_type']  # Get the event type from the form
 
         start_date_dt = datetime.fromisoformat(start_date).replace(tzinfo=pytz.utc)
 
@@ -147,7 +148,8 @@ def schedule(calendar_type):
             start_time=start_time_dt,
             end_time=end_time_dt,
             email=email,
-            calendar_type=calendar_type
+            calendar_type=calendar_type,
+            event_type=event_type  # Include the event type
         )
         db.session.add(new_entry)
         db.session.commit()
@@ -160,6 +162,7 @@ def schedule(calendar_type):
         return redirect(url_for('calendar', calendar_type=calendar_type))
 
     return redirect(url_for('calendar', calendar_type=calendar_type, new_event=new_event_scheduled))
+
 
 @app.route('/remove_entry', methods=['POST'])
 def remove_entry():

@@ -1,43 +1,50 @@
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
-    background-color: #1783E8; /* Set the background color to aquamarine */
+    background-color: #1783E8; /* Background color */
 }
 
-h1 {
-    color: #333;
+h1, h2 {
+    text-align: center;
+    color: #fff; /* Text color */
 }
 
-form {
+/* Container for buttons and image */
+.button-image-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Style for horizontal button layout */
+.button-container-horizontal {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Adds space between the buttons */
     margin-bottom: 20px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 8px;
-    text-align: left;
-    border: 1px solid #ccc;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-.calendar-button {
-    display: inline-block;
-    margin-top: 20px;
+/* Style for calendar buttons */
+.calendar-button, .status-button {
     padding: 10px 15px;
     background-color: #fff;
     border: 1px solid #333;
     text-decoration: none;
     color: #333;
     border-radius: 5px;
+    font-size: 16px;
 }
 
-.calendar-button:hover {
+.calendar-button:hover, .status-button:hover {
     background-color: #ddd;
+}
+
+/* Image container */
+.image-container {
+    margin-top: 20px; /* Adds space between buttons and image */
+}
+
+.logo-image {
+    max-width: 200px; /* Limit the width of the logo */
+    height: auto;
 }

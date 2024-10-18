@@ -7,7 +7,7 @@ import os
 import pytz
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://scheduler_gp4w_user:4I2dxWzkZ6luTNRPB2MQxYCUPYoneIsq@dpg-cs8e34tsvqrc73bpaq2g-a/scheduler_gp4w'  # Database URI 'sqlite:///schedule.db'#
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///schedule.db'#'postgresql://scheduler_gp4w_user:4I2dxWzkZ6luTNRPB2MQxYCUPYoneIsq@dpg-cs8e34tsvqrc73bpaq2g-a/scheduler_gp4w'  # Database URI 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'supersecretkey'
 
@@ -67,8 +67,7 @@ class ScheduleEntry(db.Model):
 # Create the database and tables
 with app.app_context():
     db.create_all()
-
-def get_entries_for_week(calendar_type):
+def get_entries_for_two_weeks(calendar_type):
     entries = []
     # Get the current date and time in UTC
     now_utc = datetime.now(pytz.utc)
@@ -77,15 +76,15 @@ def get_entries_for_week(calendar_type):
     start_of_week = now_utc - timedelta(days=now_utc.weekday())  # Get the latest Monday
     start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)  # Set to 00:00:00
 
-    # Loop through the days of the week and get the events for each day, filtered by calendar_type
-    for i in range(7):
+    # Loop through the next 14 days (two weeks)
+    for i in range(14):  # Iterate over 14 days
         day = start_of_week + timedelta(days=i)
         
         # Filter events based on calendar_type and the specific day
         events = ScheduleEntry.query.filter(
             ScheduleEntry.start_time >= day,
             ScheduleEntry.start_time < day + timedelta(days=1),
-            ScheduleEntry.calendar_type == calendar_type  # Filter by calendar type
+            ScheduleEntry.calendar_type == calendar_type
         ).all()
         
         entries.append({
@@ -95,14 +94,16 @@ def get_entries_for_week(calendar_type):
     
     return entries
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/calendar/<calendar_type>')
 def calendar(calendar_type):
-    entries = get_entries_for_week(calendar_type)
+    entries = get_entries_for_two_weeks(calendar_type)  # Fetch 14 days' worth of entries
     return render_template('calendar.html', entries=entries, calendar_type=calendar_type)
+
 
 @app.route('/schedule/<calendar_type>', methods=['POST'])
 def schedule(calendar_type):

@@ -11,14 +11,19 @@
 
     <h2>Select a Calendar:</h2>
 
-    <!-- Links to different robot calendars -->
-    <a href="{{ url_for('calendar', calendar_type='ur') }}" class="calendar-button">View UR10 Calendar</a>
-    <br>
-    <a href="{{ url_for('calendar', calendar_type='robot2') }}" class="calendar-button">View Robot 2 Calendar</a>
-    <br>
-    <a href="{{ url_for('calendar', calendar_type='robot3') }}" class="calendar-button">View Robot 3 Calendar</a>
+    <div class="button-image-container">
+        <!-- Container for buttons in a horizontal line -->
+        <div class="button-container-horizontal">
+            <a href="{{ url_for('calendar', calendar_type='ur') }}" class="calendar-button">View UR10 Calendar</a>
+            <a href="{{ url_for('calendar', calendar_type='robot2') }}" class="calendar-button">View Robot 2 Calendar</a>
+            <a href="{{ url_for('calendar', calendar_type='robot3') }}" class="calendar-button">View Robot 3 Calendar</a>
+            <a href="{{ url_for('status') }}" class="status-button">View Status Reports</a>
+        </div>
 
-    <br><br>
-    <a href="{{ url_for('status') }}" class="status-button">View Status Reports</a>
+        <!-- Image container for the logo, below the buttons -->
+        <div class="image-container">
+            <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="Logo" class="logo-image">
+        </div>
+    </div>
 </body>
 </html>

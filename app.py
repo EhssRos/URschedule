@@ -7,7 +7,7 @@ import os
 import pytz
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://urscheduler_p152_user:mgLDJc0mTrMSb55tLEoi8iZ4eX1glluF@dpg-ct6pj72j1k6c73ai5rm0-a/urscheduler_p152'#'sqlite:///schedule.db'#'postgresql://scheduler_gp4w_user:4I2dxWzkZ6luTNRPB2MQxYCUPYoneIsq@dpg-cs8e34tsvqrc73bpaq2g-a/scheduler_gp4w'  # Database URI 'sqlite:///schedule.db'#
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://urscheduler_p152_user:mgLDJc0mTrMSb55tLEoi8iZ4eX1glluF@dpg-ct6pj72j1k6c73ai5rm0-a/urscheduler_p152'#'sqlite:///schedule.db'##'sqlite:///schedule.db'#'postgresql://scheduler_gp4w_user:4I2dxWzkZ6luTNRPB2MQxYCUPYoneIsq@dpg-cs8e34tsvqrc73bpaq2g-a/scheduler_gp4w'  # Database URI 'sqlite:///schedule.db'#
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'supersecretkey'
 

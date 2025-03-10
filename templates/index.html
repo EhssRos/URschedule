@@ -69,8 +69,10 @@
         <!-- Horizontal button layout -->
         <div class="button-container-horizontal">
             <a href="{{ url_for('calendar', calendar_type='ur') }}" class="calendar-button">View UR10 Calendar</a>
-            <a href="{{ url_for('calendar', calendar_type='robot2') }}" class="calendar-button">View Robot 2 Calendar</a>
-            <a href="{{ url_for('calendar', calendar_type='robot3') }}" class="calendar-button">View Robot 3 Calendar</a>
+            <a href="{{ url_for('calendar', calendar_type='.207 GPU 0') }}" class="calendar-button">View GPU 0 Calendar</a>
+            <a href="{{ url_for('calendar', calendar_type='.207 GPU 1') }}" class="calendar-button">View GPU 1 Calendar</a>
+            <a href="{{ url_for('calendar', calendar_type='.207 GPU 2') }}" class="calendar-button">View GPU 2 Calendar</a>
+            <a href="{{ url_for('calendar', calendar_type='.207 GPU 3') }}" class="calendar-button">View GPU 3 Calendar</a>
             <a href="{{ url_for('status') }}" class="status-button">View Status Reports</a>
         </div>
 

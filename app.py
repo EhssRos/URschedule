@@ -100,6 +100,10 @@ def get_entries_for_two_weeks(calendar_type):
 def index():
     return render_template('index.html')
 
+@app.route('/gpu')
+def gpu():
+    return render_template('gpu.html')
+
 @app.route('/calendar/<calendar_type>')
 def calendar(calendar_type):
     entries = get_entries_for_two_weeks(calendar_type)  # Fetch 14 days' worth of entries

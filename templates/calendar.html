@@ -82,12 +82,14 @@
             </tr>
         </thead>
         <tbody>
+            {% set weekday_count = 0 %}
             {% for entry in entries %}
-                {% if entry.date.weekday() not in [5, 6] %} <!-- Skip Saturdays (5) and Sundays (6) -->
-                    {% if loop.index > 1 and (loop.index0) % 5 == 0 %}
+                {% if entry.date.weekday() not in [5, 6] %}
+                    {% set weekday_count = weekday_count + 1 %}
+                    {% if weekday_count > 1 and (weekday_count - 1) % 5 == 0 %}
                     <tr>
                         <td colspan="3" style="background-color: #f2f2f2; text-align: center;">
-                            End of Week {{ (loop.index0 // 5) }}
+                            End of Week {{ ((weekday_count - 1) // 5) }}
                         </td>
                     </tr>
                     {% endif %}
@@ -123,11 +125,11 @@
     
     <h2>Add Schedule to {{ calendar_type }}</h2>
     <form action="{{ url_for('schedule', calendar_type=calendar_type) }}" method="post">
-        <label for="date_range">Date Range (UTC):</label>
-        <input type="text" id="date_range" name="date_range" required readonly style="background:#fff;cursor:pointer;">
+        <label for="start_date">Start Date (UTC):</label>
+        <input type="date" id="start_date" name="start_date" required>
 
-        <input type="hidden" id="start_date" name="start_date">
-        <input type="hidden" id="end_date" name="end_date">
+        <label for="end_date">End Date (UTC):</label>
+        <input type="date" id="end_date" name="end_date" required>
 
         <label for="start_time">Start Time (UTC):</label>
         <input type="time" id="start_time" name="start_time" required>

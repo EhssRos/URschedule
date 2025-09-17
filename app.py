@@ -131,58 +131,83 @@ def calendar(calendar_type):
 
 @app.route('/schedule/<calendar_type>', methods=['POST'])
 def schedule(calendar_type):
-    new_event_scheduled = False
+    mode = request.form.get('mode')
     try:
-        start_date = request.form['start_date']
-        end_date = request.form['end_date']
-        all_day = 'all_day' in request.form
-        email = request.form['email']
-        event_type = request.form['event_type']
-
-        if all_day:
-            # All day: start at 00:00, end at 23:59:59
-            start_time_dt = datetime.fromisoformat(start_date).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=pytz.utc)
-            end_time_dt = datetime.fromisoformat(end_date).replace(hour=23, minute=59, second=59, microsecond=0, tzinfo=pytz.utc)
-        else:
+        if mode == "single":
+            # Single day, time range
+            date = request.form['single_date']
             start_time = request.form['start_time']
             end_time = request.form['end_time']
-            # Combine date and time
-            start_time_dt = datetime.fromisoformat(f"{start_date}T{start_time}").replace(tzinfo=pytz.utc)
-            end_time_dt = datetime.fromisoformat(f"{end_date}T{end_time}").replace(tzinfo=pytz.utc)
-            if end_time_dt <= start_time_dt:
+            email = request.form['email']
+            event_type = request.form['event_type']
+            start_dt = datetime.fromisoformat(f"{date}T{start_time}").replace(tzinfo=pytz.utc)
+            end_dt = datetime.fromisoformat(f"{date}T{end_time}").replace(tzinfo=pytz.utc)
+            if end_dt <= start_dt:
                 flash('End time must be after start time.', 'error')
                 return redirect(url_for('calendar', calendar_type=calendar_type))
-
-        overlapping_events = ScheduleEntry.query.filter(
-            and_(
-                ScheduleEntry.start_time < end_time_dt,
-                ScheduleEntry.end_time > start_time_dt,
-                ScheduleEntry.calendar_type == calendar_type
+            # Overlap check and insert as before
+            overlapping_events = ScheduleEntry.query.filter(
+                and_(
+                    ScheduleEntry.start_time < end_dt,
+                    ScheduleEntry.end_time > start_dt,
+                    ScheduleEntry.calendar_type == calendar_type
+                )
+            ).all()
+            if overlapping_events:
+                flash('The scheduled time overlaps with an existing event.', 'error')
+                return redirect(url_for('calendar', calendar_type=calendar_type))
+            new_entry = ScheduleEntry(
+                start_time=start_dt,
+                end_time=end_dt,
+                email=email,
+                calendar_type=calendar_type,
+                event_type=event_type
             )
-        ).all()
-
-        if overlapping_events:
-            flash('The scheduled time overlaps with an existing event.', 'error')
-            return redirect(url_for('calendar', calendar_type=calendar_type))
-
-        new_entry = ScheduleEntry(
-            start_time=start_time_dt,
-            end_time=end_time_dt,
-            email=email,
-            calendar_type=calendar_type,
-            event_type=event_type
-        )
-        db.session.add(new_entry)
-        db.session.commit()
-
-        flash('Event successfully scheduled!', 'success')
-        new_event_scheduled = True
-
+            db.session.add(new_entry)
+            db.session.commit()
+            flash('Event successfully scheduled!', 'success')
+        elif mode == "multi":
+            # Multi-day, all day for each day in range
+            start_date = request.form['range_start']
+            end_date = request.form['range_end']
+            email = request.form['email']
+            event_type = request.form['event_type']
+            start_dt = datetime.fromisoformat(start_date).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=pytz.utc)
+            end_dt = datetime.fromisoformat(end_date).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=pytz.utc)
+            if end_dt < start_dt:
+                flash('End date must be after or equal to start date.', 'error')
+                return redirect(url_for('calendar', calendar_type=calendar_type))
+            # Insert one all-day event per day in range
+            day_count = (end_dt.date() - start_dt.date()).days + 1
+            for i in range(day_count):
+                day = start_dt + timedelta(days=i)
+                day_start = day
+                day_end = day.replace(hour=23, minute=59, second=59)
+                overlapping_events = ScheduleEntry.query.filter(
+                    and_(
+                        ScheduleEntry.start_time < day_end,
+                        ScheduleEntry.end_time > day_start,
+                        ScheduleEntry.calendar_type == calendar_type
+                    )
+                ).all()
+                if overlapping_events:
+                    flash(f'Overlap on {day.date()}, skipping.', 'error')
+                    continue
+                new_entry = ScheduleEntry(
+                    start_time=day_start,
+                    end_time=day_end,
+                    email=email,
+                    calendar_type=calendar_type,
+                    event_type=event_type
+                )
+                db.session.add(new_entry)
+            db.session.commit()
+            flash('Multi-day event(s) scheduled!', 'success')
+        else:
+            flash('Invalid booking mode.', 'error')
     except Exception as e:
         flash(f'Error: {str(e)}', 'error')
-        return redirect(url_for('calendar', calendar_type=calendar_type))
-
-    return redirect(url_for('calendar', calendar_type=calendar_type, new_event=new_event_scheduled))
+    return redirect(url_for('calendar', calendar_type=calendar_type))
 
 
 @app.route('/remove_entry', methods=['POST'])

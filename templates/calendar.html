@@ -59,6 +59,8 @@
             padding: 10px 20px;
             font-size: 16px;
         }
+        #single-day-btn.active, #multi-day-btn.active { background: #1783E8; color: #fff; }
+        .selected-range { background: #ffe066 !important; }
     </style>
 </head>
 <body>
@@ -124,29 +126,39 @@
     </table>
     
     <h2>Add Schedule to {{ calendar_type }}</h2>
-    <form action="{{ url_for('schedule', calendar_type=calendar_type) }}" method="post">
-        <label for="start_date">Start Date (UTC):</label>
-        <input type="date" id="start_date" name="start_date" required>
+    <!-- Add this above your forms -->
+    <div style="margin-bottom:20px;">
+        <button type="button" id="single-day-btn" class="active">Single Day</button>
+        <button type="button" id="multi-day-btn">Multi-Day (All Day)</button>
+    </div>
 
-        <label for="end_date">End Date (UTC):</label>
-        <input type="date" id="end_date" name="end_date" required>
-
+    <!-- Single Day Booking Form -->
+    <form id="single-day-form" action="{{ url_for('schedule', calendar_type=calendar_type) }}" method="post">
+        <input type="hidden" name="mode" value="single">
+        <label for="single_date">Date (UTC):</label>
+        <input type="date" id="single_date" name="single_date" required>
         <label for="start_time">Start Time (UTC):</label>
         <input type="time" id="start_time" name="start_time" required>
         <label for="end_time">End Time (UTC):</label>
         <input type="time" id="end_time" name="end_time" required>
-
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" placeholder="Email" required>
-
         <label for="event_type">Event Type:</label>
         <input type="text" id="event_type" name="event_type" placeholder="Event Type" required>
+        <button type="submit">Add Schedule</button>
+    </form>
 
-        <label for="all_day">
-            <input type="checkbox" id="all_day" name="all_day" onclick="toggleTimeInputs()">
-            All Day Event
-        </label>
-
+    <!-- Multi-Day Booking Form -->
+    <form id="multi-day-form" action="{{ url_for('schedule', calendar_type=calendar_type) }}" method="post" style="display:none;">
+        <input type="hidden" name="mode" value="multi">
+        <label for="range_start">Start Date (UTC):</label>
+        <input type="date" id="range_start" name="range_start" required>
+        <label for="range_end">End Date (UTC):</label>
+        <input type="date" id="range_end" name="range_end" required>
+        <label for="email_multi">Email:</label>
+        <input type="email" id="email_multi" name="email" placeholder="Email" required>
+        <label for="event_type_multi">Event Type:</label>
+        <input type="text" id="event_type_multi" name="event_type" placeholder="Event Type" required>
         <button type="submit">Add Schedule</button>
     </form>
 
@@ -183,6 +195,36 @@
                 endTimeInput.setAttribute('required', true);
             }
         }
+
+        // Tab switching
+        document.getElementById('single-day-btn').onclick = function() {
+            this.classList.add('active');
+            document.getElementById('multi-day-btn').classList.remove('active');
+            document.getElementById('single-day-form').style.display = '';
+            document.getElementById('multi-day-form').style.display = 'none';
+        };
+        document.getElementById('multi-day-btn').onclick = function() {
+            this.classList.add('active');
+            document.getElementById('single-day-btn').classList.remove('active');
+            document.getElementById('single-day-form').style.display = 'none';
+            document.getElementById('multi-day-form').style.display = '';
+        };
+
+        // Highlight multi-day range in calendar
+        function highlightRange() {
+            const start = document.getElementById('range_start').value;
+            const end = document.getElementById('range_end').value;
+            document.querySelectorAll('.selectable-date').forEach(cell => {
+                const cellDate = cell.dataset.date;
+                if (start && end && cellDate >= start && cellDate <= end) {
+                    cell.classList.add('selected-range');
+                } else {
+                    cell.classList.remove('selected-range');
+                }
+            });
+        }
+        document.getElementById('range_start').addEventListener('change', highlightRange);
+        document.getElementById('range_end').addEventListener('change', highlightRange);
 
         // Attach click event to calendar date cells
         document.addEventListener('DOMContentLoaded', () => {

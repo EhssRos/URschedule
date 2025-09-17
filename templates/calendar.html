@@ -84,20 +84,10 @@
             </tr>
         </thead>
         <tbody>
-            {% set last_weekday = None %}
             {% set week_num = 1 %}
             {% for entry in entries %}
-                <!-- DEBUG: entry.date={{ entry.date }} weekday={{ entry.date.weekday() }} last_weekday={{ last_weekday }} -->
                 {% if entry.date.weekday() not in [5, 6] %}
-                    {% if last_weekday is not none and last_weekday > entry.date.weekday() %}
-                    <!-- DEBUG: INSERTING SEPARATOR after {{ last_weekday }} before {{ entry.date.weekday() }} (End of Week {{ week_num }}) -->
-                    <tr>
-                        <td colspan="3" style="background-color: #f2f2f2; text-align: center;">
-                            Weekend (End of Week {{ week_num }})
-                        </td>
-                    </tr>
-                    {% set week_num = week_num + 1 %}
-                    {% endif %}
+                    <!-- DEBUG: entry.date={{ entry.date }} weekday={{ entry.date.weekday() }} -->
                     <tr>
                         <td class="selectable-date" data-date="{{ entry.date }}">{{ entry.date }}</td>
                         <td>
@@ -123,7 +113,15 @@
                             {% endfor %}
                         </td>
                     </tr>
-                    {% set last_weekday = entry.date.weekday() %}
+                    {% if entry.date.weekday() == 4 %}
+                    <!-- DEBUG: INSERTING SEPARATOR after Friday (End of Week {{ week_num }}) -->
+                    <tr>
+                        <td colspan="3" style="background-color: #f2f2f2; text-align: center;">
+                            Weekend (End of Week {{ week_num }})
+                        </td>
+                    </tr>
+                    {% set week_num = week_num + 1 %}
+                    {% endif %}
                 {% endif %}
             {% endfor %}
         </tbody>

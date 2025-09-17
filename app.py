@@ -95,6 +95,25 @@ def get_entries_for_two_weeks(calendar_type):
     
     return entries
 
+def get_entries_for_two_months(calendar_type):
+    entries = []
+    now_utc = datetime.now(pytz.utc)
+    start_of_week = now_utc - timedelta(days=now_utc.weekday())
+    start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    for i in range(60):  # 60 days for two months
+        day = start_of_week + timedelta(days=i)
+        events = ScheduleEntry.query.filter(
+            ScheduleEntry.start_time >= day,
+            ScheduleEntry.start_time < day + timedelta(days=1),
+            ScheduleEntry.calendar_type == calendar_type
+        ).all()
+        entries.append({
+            'date': day.date(),
+            'events': events
+        })
+    return entries
+
 
 @app.route('/')
 def index():
@@ -106,35 +125,37 @@ def gpu():
 
 @app.route('/calendar/<calendar_type>')
 def calendar(calendar_type):
-    entries = get_entries_for_two_weeks(calendar_type)  # Fetch 14 days' worth of entries
+    # entries = get_entries_for_two_weeks(calendar_type)
+    entries = get_entries_for_two_months(calendar_type)
     return render_template('calendar.html', entries=entries, calendar_type=calendar_type)
 
 @app.route('/schedule/<calendar_type>', methods=['POST'])
 def schedule(calendar_type):
-    new_event_scheduled = False  # Flag to indicate if a new event was scheduled
+    new_event_scheduled = False
     try:
         start_date = request.form['start_date']
+        end_date = request.form['end_date']
         all_day = 'all_day' in request.form
         email = request.form['email']
-        event_type = request.form['event_type']  # Get the event type from the form
+        event_type = request.form['event_type']
 
         start_date_dt = datetime.fromisoformat(start_date).replace(tzinfo=pytz.utc)
+        end_date_dt = datetime.fromisoformat(end_date).replace(tzinfo=pytz.utc)
 
         if all_day:
             start_time_dt = start_date_dt
-            end_time_dt = start_time_dt.replace(hour=23, minute=59, second=59)
+            end_time_dt = end_date_dt.replace(hour=23, minute=59, second=59)
         else:
             start_time = request.form['start_time']
             end_time = request.form['end_time']
 
             start_time_dt = datetime.fromisoformat(f"{start_date}T{start_time}").replace(tzinfo=pytz.utc)
-            end_time_dt = datetime.fromisoformat(f"{start_date}T{end_time}").replace(tzinfo=pytz.utc)
+            end_time_dt = datetime.fromisoformat(f"{end_date}T{end_time}").replace(tzinfo=pytz.utc)
 
             if end_time_dt <= start_time_dt:
                 flash('End time must be after start time.', 'error')
                 return redirect(url_for('calendar', calendar_type=calendar_type))
 
-        # Overlap check
         overlapping_events = ScheduleEntry.query.filter(
             and_(
                 ScheduleEntry.start_time < end_time_dt,
@@ -147,19 +168,18 @@ def schedule(calendar_type):
             flash('The scheduled time overlaps with an existing event.', 'error')
             return redirect(url_for('calendar', calendar_type=calendar_type))
 
-        # Add the new schedule entry
         new_entry = ScheduleEntry(
             start_time=start_time_dt,
             end_time=end_time_dt,
             email=email,
             calendar_type=calendar_type,
-            event_type=event_type  # Include the event type
+            event_type=event_type
         )
         db.session.add(new_entry)
         db.session.commit()
 
         flash('Event successfully scheduled!', 'success')
-        new_event_scheduled = True  # Set flag to True
+        new_event_scheduled = True
 
     except KeyError as e:
         flash(f'Missing required field: {str(e)}', 'error')

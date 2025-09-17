@@ -127,26 +127,28 @@
     
     <h2>Add Schedule to {{ calendar_type }}</h2>
     <form action="{{ url_for('schedule', calendar_type=calendar_type) }}" method="post">
-        <label for="start_date">Start Date (UTC):</label>
-        <input type="date" id="start_date" name="start_date" required>
-    
+        <label for="date_range">Date Range (UTC):</label>
+        <input type="text" id="date_range" name="date_range" required readonly style="background:#fff;cursor:pointer;">
+
+        <input type="hidden" id="start_date" name="start_date">
+        <input type="hidden" id="end_date" name="end_date">
+
         <label for="start_time">Start Time (UTC):</label>
         <input type="time" id="start_time" name="start_time" required>
-    
         <label for="end_time">End Time (UTC):</label>
         <input type="time" id="end_time" name="end_time" required>
-    
+
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" placeholder="Email" required>
-    
+
         <label for="event_type">Event Type:</label>
         <input type="text" id="event_type" name="event_type" placeholder="Event Type" required>
-    
+
         <label for="all_day">
             <input type="checkbox" id="all_day" name="all_day" onclick="toggleTimeInputs()">
             All Day Event
         </label>
-    
+
         <button type="submit">Add Schedule</button>
     </form>
 
@@ -156,6 +158,15 @@
         <button onclick="document.getElementById('popup').style.display='none'">Close</button>
     </div>
 
+    <!-- Masuhr Warning Popup -->
+    <div id="masuhr-popup" style="display:none;position:fixed;z-index:2;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;flex-direction:column;">
+        <img src="{{ url_for('static', filename='images/masuhr.jpg') }}" alt="MASUHR DETECTED" style="max-width:60vw;max-height:60vh;">
+        <div style="color:red;font-size:2em;font-weight:bold;margin:20px;">WARNING MASUHR DETECTED</div>
+        <button onclick="document.getElementById('masuhr-popup').style.display='none'">Close</button>
+    </div>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
     <script>
         function toggleTimeInputs() {
             var allDayCheckbox = document.getElementById("all_day");
@@ -188,6 +199,38 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('new_event') === 'True') {
              //   document.getElementById('popup').style.display = 'flex';
+            }
+
+            // Masuhr warning on form submit
+            const scheduleForm = document.querySelector('form[action*="schedule"]');
+            if (scheduleForm) {
+                scheduleForm.addEventListener('submit', function(e) {
+                    const email = document.getElementById('email').value;
+                    if (email.toLowerCase().includes('masuhr')) {
+                        e.preventDefault();
+                        document.getElementById('masuhr-popup').style.display = 'flex';
+                        // Play beep
+                        try {
+                            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                            const o = ctx.createOscillator();
+                            o.type = 'sine';
+                            o.frequency.value = 880;
+                            o.connect(ctx.destination);
+                            o.start();
+                            setTimeout(() => { o.stop(); ctx.close(); }, 300);
+                        } catch (err) {}
+                    }
+                });
+            }
+        });
+
+        const picker = new Litepicker({
+            element: document.getElementById('date_range'),
+            singleMode: false,
+            format: 'YYYY-MM-DD',
+            onSelect: (start, end) => {
+                document.getElementById('start_date').value = start.format('YYYY-MM-DD');
+                document.getElementById('end_date').value = end.format('YYYY-MM-DD');
             }
         });
     </script>

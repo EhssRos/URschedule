@@ -139,19 +139,16 @@ def schedule(calendar_type):
         email = request.form['email']
         event_type = request.form['event_type']
 
-        start_date_dt = datetime.fromisoformat(start_date).replace(tzinfo=pytz.utc)
-        end_date_dt = datetime.fromisoformat(end_date).replace(tzinfo=pytz.utc)
-
         if all_day:
-            start_time_dt = start_date_dt
-            end_time_dt = end_date_dt.replace(hour=23, minute=59, second=59)
+            # All day: start at 00:00, end at 23:59:59
+            start_time_dt = datetime.fromisoformat(start_date).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=pytz.utc)
+            end_time_dt = datetime.fromisoformat(end_date).replace(hour=23, minute=59, second=59, microsecond=0, tzinfo=pytz.utc)
         else:
             start_time = request.form['start_time']
             end_time = request.form['end_time']
-
+            # Combine date and time
             start_time_dt = datetime.fromisoformat(f"{start_date}T{start_time}").replace(tzinfo=pytz.utc)
             end_time_dt = datetime.fromisoformat(f"{end_date}T{end_time}").replace(tzinfo=pytz.utc)
-
             if end_time_dt <= start_time_dt:
                 flash('End time must be after start time.', 'error')
                 return redirect(url_for('calendar', calendar_type=calendar_type))
@@ -181,8 +178,8 @@ def schedule(calendar_type):
         flash('Event successfully scheduled!', 'success')
         new_event_scheduled = True
 
-    except KeyError as e:
-        flash(f'Missing required field: {str(e)}', 'error')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'error')
         return redirect(url_for('calendar', calendar_type=calendar_type))
 
     return redirect(url_for('calendar', calendar_type=calendar_type, new_event=new_event_scheduled))

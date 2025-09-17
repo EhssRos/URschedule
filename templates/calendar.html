@@ -82,44 +82,40 @@
             </tr>
         </thead>
         <tbody>
-           
             {% for entry in entries %}
                 {% if entry.date.weekday() not in [5, 6] %} <!-- Skip Saturdays (5) and Sundays (6) -->
-                
-                <!-- Add week separator if weekday_counter is a multiple of 5 -->
-                {% if loop.index == 8 %}
-                <tr>
-                    <td colspan="3" style="background-color: #f2f2f2; text-align: center;">End of Week 1</td>
-                </tr>
-                {% endif %}
-                
-                <tr>
-                    <td class="selectable-date" data-date="{{ entry.date }}">{{ entry.date }}</td>
-                    <td>
-                        {% for event in entry.events %}
-                        <div class="event-badge-tooltip">
-                            <span class="event-badge">
-                                {{ event.start_time.strftime('%H:%M UTC') }} - {{ event.end_time.strftime('%H:%M UTC') }}: {{ event.event_type }}
-                            </span>
-                            <span class="tooltip-text">by {{ event.email }}</span>
-                        </div>
-                        {% endfor %}
-                        {% if not entry.events %}
-                        <div>No events</div>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% for event in entry.events %}
-                        <form action="{{ url_for('remove_entry', calendar_type=calendar_type) }}" method="post" style="display: inline;">
-                            <input type="hidden" name="entry_index" value="{{ event.id }}">
-                            <input type="password" name="password" placeholder="Password" required>
-                            <button type="submit">Remove</button>
-                        </form>
-                        {% endfor %}
-                    </td>
-                </tr>
-
-               
+                    {% if loop.index > 1 and (loop.index0) % 5 == 0 %}
+                    <tr>
+                        <td colspan="3" style="background-color: #f2f2f2; text-align: center;">
+                            End of Week {{ (loop.index0 // 5) }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td class="selectable-date" data-date="{{ entry.date }}">{{ entry.date }}</td>
+                        <td>
+                            {% for event in entry.events %}
+                            <div class="event-badge-tooltip">
+                                <span class="event-badge">
+                                    {{ event.start_time.strftime('%H:%M UTC') }} - {{ event.end_time.strftime('%H:%M UTC') }}: {{ event.event_type }}
+                                </span>
+                                <span class="tooltip-text">by {{ event.email }}</span>
+                            </div>
+                            {% endfor %}
+                            {% if not entry.events %}
+                            <div>No events</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% for event in entry.events %}
+                            <form action="{{ url_for('remove_entry', calendar_type=calendar_type) }}" method="post" style="display: inline;">
+                                <input type="hidden" name="entry_index" value="{{ event.id }}">
+                                <input type="password" name="password" placeholder="Password" required>
+                                <button type="submit">Remove</button>
+                            </form>
+                            {% endfor %}
+                        </td>
+                    </tr>
                 {% endif %}
             {% endfor %}
         </tbody>

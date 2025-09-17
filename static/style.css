@@ -48,3 +48,7 @@ h1, h2 {
     max-width: 200px; /* Limit the width of the logo */
     height: auto;
 }
+
+.selected-range {
+    background: #ffe066 !important;
+}

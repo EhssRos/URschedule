@@ -84,14 +84,12 @@
             </tr>
         </thead>
         <tbody>
-            {% set weekday_count = 0 %}
+            {% set week_num = 1 %}
             {% for entry in entries %}
-                {% if entry.date.weekday() not in [5, 6] %}
-                    {% set weekday_count = weekday_count + 1 %}
-                    {% if weekday_count > 1 and (weekday_count - 1) % 5 == 0 %}
+                {% if entry.date.weekday() == 5 %}
                     <tr>
                         <td colspan="3" style="background-color: #f2f2f2; text-align: center;">
-                            End of Week {{ ((weekday_count - 1) // 5) }}
+                            Weekend {{ week_num }}
                         </td>
                     </tr>
                     {% endif %}
@@ -196,6 +194,7 @@
             }
         }
 
+        let setStart = true;
         // Tab switching
         document.getElementById('single-day-btn').onclick = function() {
             this.classList.add('active');
@@ -210,7 +209,30 @@
             document.getElementById('multi-day-form').style.display = '';
         };
 
-        // Highlight multi-day range in calendar
+        // Toggle for multi-day start/end
+        document.getElementById('range_start').onclick = function() { setStart = true; };
+        document.getElementById('range_end').onclick = function() { setStart = false; };
+
+        // Click calendar date to fill form
+        document.querySelectorAll('.selectable-date').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const selectedDate = cell.dataset.date;
+                if (document.getElementById('single-day-form').style.display !== 'none') {
+                    document.getElementById('single_date').value = selectedDate;
+                } else {
+                    if (setStart) {
+                        document.getElementById('range_start').value = selectedDate;
+                        setStart = false;
+                    } else {
+                        document.getElementById('range_end').value = selectedDate;
+                        setStart = true;
+                    }
+                    highlightRange();
+                }
+            });
+        });
+
+        // Highlight multi-day range
         function highlightRange() {
             const start = document.getElementById('range_start').value;
             const end = document.getElementById('range_end').value;

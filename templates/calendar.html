@@ -267,33 +267,38 @@
              //   document.getElementById('popup').style.display = 'flex';
             }
 
-            // Masuhr warning on form submit
-            const scheduleForm = document.querySelector('form[action*="schedule"]');
-            if (scheduleForm) {
-                scheduleForm.addEventListener('submit', function(e) {
-                    const email = document.getElementById('email').value;
-                    if (email.toLowerCase().includes('masuhr')) {
-                        e.preventDefault();
-                        document.getElementById('masuhr-popup').style.display = 'flex';
-                        // Play beep
-                        try {
-                            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                            const o = ctx.createOscillator();
-                            o.type = 'sine';
-                            o.frequency.value = 880;
-                            o.connect(ctx.destination);
-                            o.start();
-                            setTimeout(() => { o.stop(); ctx.close(); }, 300);
-                        } catch (err) {}
-                        // When popup is closed, submit the form
-                        document.getElementById('masuhr-popup').querySelector('button').onclick = function() {
-                            document.getElementById('masuhr-popup').style.display = 'none';
-                            scheduleForm.submit();
-                        };
-                        return;
-                    }
-                });
+            // Masuhr warning on form submit (for both forms)
+            function setupMasuhrPopup(formId, emailId) {
+                const form = document.getElementById(formId);
+                if (form) {
+                    form.addEventListener('submit', function(e) {
+                        const email = document.getElementById(emailId).value;
+                        if (email.toLowerCase().includes('masuhr')) {
+                            e.preventDefault();
+                            document.getElementById('masuhr-popup').style.display = 'flex';
+                            // Play beep
+                            try {
+                                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                                const o = ctx.createOscillator();
+                                o.type = 'sine';
+                                o.frequency.value = 880;
+                                o.connect(ctx.destination);
+                                o.start();
+                                setTimeout(() => { o.stop(); ctx.close(); }, 300);
+                            } catch (err) {}
+                            // When popup is closed, submit the form
+                            document.getElementById('masuhr-popup').querySelector('button').onclick = function() {
+                                document.getElementById('masuhr-popup').style.display = 'none';
+                                form.submit();
+                            };
+                            return;
+                        }
+                    });
+                }
             }
+
+            setupMasuhrPopup('single-day-form', 'email');
+            setupMasuhrPopup('multi-day-form', 'email_multi');
         });
 
         const picker = new Litepicker({

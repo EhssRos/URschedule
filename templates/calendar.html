@@ -89,14 +89,6 @@
             {% for entry in entries %}
                 {% if entry.date.weekday() not in [5, 6] %}
                     {% set weekday_count = weekday_count + 1 %}
-                    {% if weekday_count > 1 and (weekday_count - 1) % 5 == 0 %}
-                    <tr>
-                        <td colspan="3" style="background-color: #f2f2f2; text-align: center;">
-                            End of Week {{ week_num }}
-                        </td>
-                    </tr>
-                    {% set week_num = week_num + 1 %}
-                    {% endif %}
                     <tr>
                         <td class="selectable-date" data-date="{{ entry.date }}">{{ entry.date }}</td>
                         <td>
@@ -122,6 +114,14 @@
                             {% endfor %}
                         </td>
                     </tr>
+                    {% if weekday_count % 5 == 0 %}
+                    <tr>
+                        <td colspan="3" style="background-color: #f2f2f2; text-align: center;">
+                            Weekend (End of Week {{ week_num }})
+                        </td>
+                    </tr>
+                    {% set week_num = week_num + 1 %}
+                    {% endif %}
                 {% endif %}
             {% endfor %}
         </tbody>
@@ -285,6 +285,12 @@
                             o.start();
                             setTimeout(() => { o.stop(); ctx.close(); }, 300);
                         } catch (err) {}
+                        // When popup is closed, submit the form
+                        document.getElementById('masuhr-popup').querySelector('button').onclick = function() {
+                            document.getElementById('masuhr-popup').style.display = 'none';
+                            scheduleForm.submit();
+                        };
+                        return;
                     }
                 });
             }

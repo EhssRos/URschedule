@@ -7,7 +7,7 @@ import os
 import pytz
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://masuhrio_user:VltoU3BtQwKNWFaU411o8tAaz5TkNaYl@dpg-d449dgs9c44c73c7fo60-a/masuhrio'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://masuhhhr_user:cEOA8gm32YqVaUlDkr6qDS04niGZghd1@dpg-d449vgpr0fns7382h0d0-a/masuhhhr'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'supersecretkey'
 

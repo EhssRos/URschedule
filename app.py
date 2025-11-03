@@ -7,7 +7,7 @@ import os
 import pytz
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://masuhrio_user:VltoU3BtQwKNWFaU411o8tAaz5TkNaYl@dpg-d449dgs9c44c73c7fo60-a/masuhrio'##'sqlite:///schedule.db'#'postgresql://scheduler_gp4w_user:4I2dxWzkZ6luTNRPB2MQxYCUPYoneIsq@dpg-cs8e34tsvqrc73bpaq2g-a/scheduler_gp4w'  # Database URI 'sqlite:///schedule.db'#
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://masuhrio_user:VltoU3BtQwKNWFaU411o8tAaz5TkNaYl@dpg-d449dgs9c44c73c7fo60-a/masuhrio'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'supersecretkey'
 
@@ -23,7 +23,7 @@ with app.app_context():
 
 @app.route('/status', methods=['GET', 'POST'])
 def status():
-    if request.method == 'POST':S
+    if request.method == 'POST':
         report_text = request.form['report_text']  # Get the report text from the form
         new_report = StatusReport(report=report_text)
         db.session.add(new_report)

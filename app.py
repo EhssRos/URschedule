@@ -23,7 +23,7 @@ with app.app_context():
 
 @app.route('/status', methods=['GET', 'POST'])
 def status():
-    if request.method == 'POST':
+    if request.method == 'POST':S
         report_text = request.form['report_text']  # Get the report text from the form
         new_report = StatusReport(report=report_text)
         db.session.add(new_report)
